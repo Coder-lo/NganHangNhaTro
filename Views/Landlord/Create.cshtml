@@ -1,0 +1,5 @@
+@model RoomFormViewModel
+@{ ViewData["Title"] = "Đăng phòng mới"; }
+<div class="form-page"><h1>Đăng phòng trọ mới</h1><p class="muted">Tin đăng sẽ ở trạng thái chờ duyệt cho đến khi Admin kiểm duyệt.</p>
+<form asp-action="Create" method="post" enctype="multipart/form-data" class="form-stack">@Html.AntiForgeryToken()<partial name="_RoomForm" model="Model" /></form></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

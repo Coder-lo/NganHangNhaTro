@@ -1,0 +1,11 @@
+@model LoginViewModel
+@{ ViewData["Title"] = "Đăng nhập"; }
+<div class="auth-card"><h1>Chào mừng trở lại</h1><p class="muted">Đăng nhập để tiếp tục</p>
+<form asp-action="Login" method="post" class="form-stack">
+    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+    <div asp-validation-summary="ModelOnly" class="validation"></div>
+    <label asp-for="Email">Email</label><input asp-for="Email" autocomplete="email" /><span asp-validation-for="Email" class="validation"></span>
+    <label asp-for="Password">Mật khẩu</label><input asp-for="Password" autocomplete="current-password" /><span asp-validation-for="Password" class="validation"></span>
+    <button class="btn btn-primary full" type="submit">Đăng nhập</button>
+</form><p class="auth-foot">Chưa có tài khoản? <a asp-action="Register">Đăng ký ngay</a></p></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

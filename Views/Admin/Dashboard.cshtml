@@ -1,0 +1,14 @@
+@{ ViewData["Title"] = "Dashboard quản trị"; }
+<div class="section-heading"><div><span class="eyebrow">QUẢN TRỊ HỆ THỐNG</span><h1>Tổng quan</h1></div></div>
+<div class="stats-grid">
+<div class="stat-card"><span>Tổng tài khoản</span><strong>@ViewBag.Users</strong><a asp-action="Users">Quản lý tài khoản →</a></div>
+<div class="stat-card"><span>Người thuê</span><strong>@ViewBag.Tenants</strong></div>
+<div class="stat-card"><span>Chủ trọ</span><strong>@ViewBag.Landlords</strong></div>
+<div class="stat-card warning-stat"><span>Tin chờ duyệt</span><strong>@ViewBag.Pending</strong><a asp-action="Rooms" asp-route-status="Pending">Kiểm duyệt →</a></div>
+<div class="stat-card"><span>Tin đã duyệt</span><strong>@ViewBag.Approved</strong></div>
+<div class="stat-card"><span>Phòng đã thuê</span><strong>@ViewBag.Rented</strong></div>
+<div class="stat-card"><span>Yêu cầu liên hệ</span><strong>@ViewBag.Contacts</strong></div>
+<div class="stat-card"><span>Lượt xem 7 ngày</span><strong>@ViewBag.Views7Days</strong></div>
+</div>
+<section class="dashboard-chart"><div><span class="eyebrow">TÌNH HÌNH TIN ĐĂNG</span><h2>Phân bố trạng thái</h2><p class="muted">Số liệu tổng hợp trực tiếp từ cơ sở dữ liệu hiện tại.</p></div><div class="chart-bars"><div class="chart-row"><span>Chờ duyệt</span><div class="chart-track"><i class="bar-pending" style="width:@(Math.Min(100, (int)ViewBag.Pending * 100 / Math.Max(1, (int)ViewBag.Pending + (int)ViewBag.Approved + (int)ViewBag.Rented)))%"></i></div><b>@ViewBag.Pending</b></div><div class="chart-row"><span>Đã duyệt</span><div class="chart-track"><i class="bar-approved" style="width:@(Math.Min(100, (int)ViewBag.Approved * 100 / Math.Max(1, (int)ViewBag.Pending + (int)ViewBag.Approved + (int)ViewBag.Rented)))%"></i></div><b>@ViewBag.Approved</b></div><div class="chart-row"><span>Đã thuê</span><div class="chart-track"><i class="bar-rented" style="width:@(Math.Min(100, (int)ViewBag.Rented * 100 / Math.Max(1, (int)ViewBag.Pending + (int)ViewBag.Approved + (int)ViewBag.Rented)))%"></i></div><b>@ViewBag.Rented</b></div></div></section>
+<div class="quick-links"><a class="btn btn-primary" asp-action="Rooms">Quản lý tin đăng</a><a class="btn btn-outline" asp-action="Categories">Quản lý danh mục</a><a class="btn btn-outline" asp-action="Users">Quản lý tài khoản</a></div>

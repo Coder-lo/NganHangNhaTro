@@ -1,0 +1,63 @@
+@model IEnumerable<Room>
+@{
+    ViewData["Title"] = "Tìm phòng trọ";
+    var locations = ViewBag.LocationCategories as List<Category> ?? new();
+    var roomTypes = ViewBag.RoomTypeCategories as List<Category> ?? new();
+}
+<section class="hero">
+    <span class="eyebrow">TÌM CHỖ Ở DỄ DÀNG</span>
+    <h1>Tìm phòng trọ phù hợp với bạn</h1>
+    <p>Khám phá các tin đăng đã được kiểm duyệt, liên hệ trực tiếp với chủ trọ.</p>
+    <form id="searchForm" class="search-panel" method="get" asp-controller="Rooms" asp-action="Index">
+        <input name="q" value="@ViewBag.Query" placeholder="Nhập tên phòng, khu vực, địa chỉ..." aria-label="Từ khóa" />
+        <select name="locationCategoryId" aria-label="Khu vực">
+            <option value="">Tất cả khu vực</option>
+            @foreach (var c in locations) { <option value="@c.CategoryId" selected="@(ViewBag.LocationCategoryId != null && (int)ViewBag.LocationCategoryId == c.CategoryId)">@c.CategoryName</option> }
+        </select>
+        <select name="roomTypeCategoryId" aria-label="Loại phòng">
+            <option value="">Tất cả loại phòng</option>
+            @foreach (var c in roomTypes) { <option value="@c.CategoryId" selected="@(ViewBag.RoomTypeCategoryId != null && (int)ViewBag.RoomTypeCategoryId == c.CategoryId)">@c.CategoryName</option> }
+        </select>
+        <input name="minPrice" type="number" min="0" value="@ViewBag.MinPrice" placeholder="Giá từ" aria-label="Giá từ" />
+        <input name="maxPrice" type="number" min="0" value="@ViewBag.MaxPrice" placeholder="Giá đến" aria-label="Giá đến" />
+        <input name="minArea" type="number" min="0" step="0.1" value="@ViewBag.MinArea" placeholder="Diện tích từ" aria-label="Diện tích từ" />
+        <input name="maxArea" type="number" min="0" step="0.1" value="@ViewBag.MaxArea" placeholder="Diện tích đến" aria-label="Diện tích đến" />
+        <select name="amenity" aria-label="Tiện ích"><option value="">Mọi tiện ích</option>@foreach (var a in new[] { "Điều hòa", "Nóng lạnh", "Ban công", "Chỗ để xe", "Khép kín", "Máy giặt", "Wifi" }) { <option value="@a" selected="@(ViewBag.Amenity as string == a)">@a</option> }</select>
+        <select name="sort" aria-label="Sắp xếp">
+            <option value="">Mới nhất</option><option value="price_asc" selected="@(ViewBag.Sort as string == "price_asc")">Giá tăng dần</option>
+            <option value="price_desc" selected="@(ViewBag.Sort as string == "price_desc")">Giá giảm dần</option>
+            <option value="area_desc" selected="@(ViewBag.Sort as string == "area_desc")">Diện tích lớn nhất</option>
+        </select>
+        <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+    </form>
+</section>
+<section class="section-heading">
+    <div><span class="eyebrow">DANH SÁCH PHÒNG</span><h2>Phòng trọ đang còn trống</h2></div>
+    <span class="muted" id="resultCount">@Model.Count() kết quả</span>
+</section>
+<div id="roomResults">@await Html.PartialAsync("_RoomCards", Model)</div>
+@section Scripts {
+<script>
+(() => {
+ const form = document.getElementById('searchForm');
+ const results = document.getElementById('roomResults');
+ let controller;
+ form.addEventListener('submit', async (e) => {
+   e.preventDefault();
+   if (controller) controller.abort();
+   controller = new AbortController();
+   const params = new URLSearchParams(new FormData(form));
+   for (const [k,v] of [...params.entries()]) if (!v) params.delete(k);
+   const url = form.action + (params.toString() ? '?' + params.toString() : '');
+   try {
+     results.innerHTML = '<div class="loading">Đang tìm phòng...</div>';
+     const response = await fetch(url + (url.includes('?') ? '&' : '?') + 'ajax=true', { headers: { 'X-Requested-With':'fetch' }, signal: controller.signal });
+     if (!response.ok) throw new Error('Không thể tải danh sách phòng.');
+     results.innerHTML = await response.text();
+     history.replaceState(null, '', url);
+     document.getElementById('resultCount').textContent = results.querySelectorAll('.room-card').length + ' kết quả';
+   } catch (err) { if (err.name !== 'AbortError') results.innerHTML = '<div class="alert error">Có lỗi khi tìm kiếm. Vui lòng thử lại.</div>'; }
+ });
+})();
+</script>
+}

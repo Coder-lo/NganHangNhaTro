@@ -1,0 +1,20 @@
+@model IEnumerable<Room>
+@{ ViewData["Title"] = "Quản lý tin đăng"; }
+<div class="section-heading"><div><span class="eyebrow">KHU VỰC CHỦ TRỌ</span><h1>Quản lý tin đăng</h1></div><a class="btn btn-primary" asp-action="Create">+ Đăng phòng mới</a></div>
+<div class="table-wrap"><table><thead><tr><th>Phòng</th><th>Giá</th><th>Danh mục</th><th>Trạng thái</th><th>Lý do từ chối</th><th>Thao tác</th></tr></thead><tbody>
+@foreach (var r in Model) { <tr><td><b>@r.Title</b><div class="muted">@r.Address</div></td><td>@r.Price.ToString("N0") đ</td><td>@r.Category?.CategoryName</td><td><span class="status @r.Status.ToLowerInvariant()">@StatusText(r.Status)</span></td><td>@r.RejectionReason</td><td class="actions">
+<a class="btn btn-small btn-outline" asp-action="Edit" asp-route-id="@r.RoomId">Sửa</a>
+@if (r.Status is "Approved" or "Rented") { <form asp-action="ToggleRented" method="post" class="status-form" data-id="@r.RoomId">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@r.RoomId"/><button class="btn btn-small btn-outline" type="submit">@((r.Status == "Rented") ? "Mở lại" : "Đã thuê")</button></form> }
+<form asp-action="Delete" method="post" onsubmit="return confirm('Bạn chắc chắn muốn xóa tin này?')">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@r.RoomId"/><button class="btn btn-small btn-danger">Xóa</button></form>
+</td></tr> }
+</tbody></table></div>
+@functions { string StatusText(string s) => s switch { "Pending" => "Chờ duyệt", "Approved" => "Đã duyệt / Còn trống", "Rejected" => "Từ chối", "Rented" => "Đã cho thuê", _ => s }; }
+@section Scripts {
+<script>
+document.querySelectorAll('.status-form').forEach(form => form.addEventListener('submit', async e => {
+ e.preventDefault(); const data = new FormData(form);
+ const res = await fetch(form.action, {method:'POST', body:data, headers:{'X-Requested-With':'fetch'}});
+ if(res.ok) location.reload(); else alert('Không thể cập nhật trạng thái.');
+}));
+</script>
+}

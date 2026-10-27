@@ -1,0 +1,5 @@
+@model RoomFormViewModel
+@{ ViewData["Title"] = "Sửa tin đăng"; }
+<div class="form-page"><h1>Chỉnh sửa tin đăng</h1><p class="muted">Sau khi sửa, tin sẽ được chuyển về trạng thái chờ duyệt.</p>
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="form-stack">@Html.AntiForgeryToken()<partial name="_RoomForm" model="Model" /></form></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

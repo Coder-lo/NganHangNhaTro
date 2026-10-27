@@ -1,0 +1,5 @@
+@model IEnumerable<Contact>
+@{ ViewData["Title"] = "Yêu cầu đã gửi"; }
+<div class="section-heading"><div><span class="eyebrow">TÀI KHOẢN CỦA BẠN</span><h1>Yêu cầu xem phòng đã gửi</h1></div></div>
+@if (!Model.Any()) { <div class="empty-state"><h3>Bạn chưa gửi yêu cầu nào</h3><p>Chọn phòng phù hợp và liên hệ chủ trọ để bắt đầu.</p><a class="btn btn-primary" asp-controller="Rooms" asp-action="Index">Tìm phòng trọ</a></div> }
+else { <div class="table-wrap"><table><thead><tr><th>Ngày gửi</th><th>Phòng</th><th>Điện thoại</th><th>Trạng thái</th><th></th></tr></thead><tbody>@foreach(var c in Model){<tr><td>@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td><td>@c.Room?.Title</td><td>@c.SenderPhone</td><td><span class="status pending">Đã gửi</span></td><td><a class="btn btn-small btn-outline" asp-action="Details" asp-route-id="@c.ContactId">Xem chi tiết</a></td></tr>}</tbody></table></div> }

@@ -1,0 +1,13 @@
+@model ProfileViewModel
+@{ ViewData["Title"] = "Thông tin cá nhân"; }
+<div class="form-page profile-page"><span class="eyebrow">TÀI KHOẢN</span><h1>Thông tin cá nhân</h1><p class="muted">Cập nhật thông tin để chủ trọ và người thuê có thể liên hệ với bạn thuận tiện hơn.</p>
+<form asp-action="Profile" method="post" enctype="multipart/form-data" class="form-stack">@Html.AntiForgeryToken()<div asp-validation-summary="ModelOnly" class="validation"></div>
+@if(!string.IsNullOrWhiteSpace(Model.AvatarUrl)){<img class="profile-avatar" src="@Model.AvatarUrl" alt="Ảnh đại diện"/>}
+<label asp-for="FullName">Họ và tên</label><input asp-for="FullName" autocomplete="name"/><span asp-validation-for="FullName" class="validation"></span>
+<label asp-for="Email">Email</label><input asp-for="Email" autocomplete="email"/><span asp-validation-for="Email" class="validation"></span>
+<label asp-for="PhoneNumber">Số điện thoại</label><input asp-for="PhoneNumber" autocomplete="tel"/><span asp-validation-for="PhoneNumber" class="validation"></span>
+<label asp-for="DateOfBirth">Ngày sinh</label><input asp-for="DateOfBirth" type="date"/>
+<label asp-for="Address">Địa chỉ</label><input asp-for="Address" autocomplete="street-address"/>
+<label asp-for="AvatarFile">Ảnh đại diện (JPG/PNG/WEBP, tối đa 5MB)</label><input asp-for="AvatarFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"/><span asp-validation-for="AvatarFile" class="validation"></span>
+<button class="btn btn-primary full" type="submit">Lưu thay đổi</button></form></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

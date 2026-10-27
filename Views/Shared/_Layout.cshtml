@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Ngân hàng nhà trọ</title>
+    <meta name="description" content="Tìm kiếm, đăng tin và quản lý phòng trọ dễ dàng." />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<header class="site-header">
+    <div class="container nav">
+        <a class="brand" asp-controller="Rooms" asp-action="Index">🏠 Ngân hàng nhà trọ</a>
+        <button class="menu-toggle" type="button" aria-label="Mở menu" onclick="document.querySelector('.nav-links').classList.toggle('show')">☰</button>
+        <nav class="nav-links">
+            <a asp-controller="Rooms" asp-action="Index">Tìm phòng</a>
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Tenant")) {
+                <a asp-controller="Favorites" asp-action="Index">Yêu thích</a>
+                <a asp-controller="Contacts" asp-action="Mine">Yêu cầu đã gửi</a>
+            }
+            @if (User.IsInRole("Landlord")) {
+                <a asp-controller="Landlord" asp-action="Dashboard">Tổng quan</a>
+                <a asp-controller="Landlord" asp-action="Mine">Quản lý tin</a>
+                <a asp-controller="Landlord" asp-action="Contacts">Liên hệ nhận được</a>
+            }
+            @if (User.IsInRole("Admin")) {
+                <a asp-controller="Admin" asp-action="Dashboard">Quản trị</a>
+            }
+            @if (User.Identity?.IsAuthenticated == true) {
+                <a asp-controller="Account" asp-action="Profile">Hồ sơ cá nhân</a>
+                <a asp-controller="Account" asp-action="ChangePassword">Đổi mật khẩu</a>
+                <span class="welcome">Xin chào, @User.Identity.Name</span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="inline-form"><button class="btn btn-outline" type="submit">Đăng xuất</button></form>
+            } else {
+                <a asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Đăng ký</a>
+            }
+        </nav>
+    </div>
+</header>
+<main class="container main-content">
+    @if (TempData["Success"] != null) { <div class="alert success">@TempData["Success"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert error">@TempData["Error"]</div> }
+    @RenderBody()
+</main>
+<footer class="footer"><div class="container">© @DateTime.Now.Year Ngân hàng nhà trọ · Tìm nơi ở phù hợp với bạn</div></footer>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

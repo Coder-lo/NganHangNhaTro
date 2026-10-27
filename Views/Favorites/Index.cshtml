@@ -1,0 +1,4 @@
+@model IEnumerable<Room>
+@{ ViewData["Title"] = "Phòng yêu thích"; }
+<section class="section-heading"><div><span class="eyebrow">ĐÃ LƯU</span><h1>Phòng trọ yêu thích</h1></div></section>
+@await Html.PartialAsync("_RoomCards", Model)

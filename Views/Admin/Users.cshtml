@@ -1,0 +1,7 @@
+@model IEnumerable<AppUser>
+@{ ViewData["Title"] = "Quản lý tài khoản"; }
+<h1>Quản lý tài khoản</h1><div class="table-wrap"><table><thead><tr><th>Họ tên</th><th>Email</th><th>Vai trò</th><th>Ngày tạo</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+@foreach(var u in Model) { <tr><td>@u.FullName</td><td>@u.Email</td><td>@u.Role</td><td>@u.CreatedAt.ToString("dd/MM/yyyy")</td><td><span class="status @(u.Status == "Active" ? "approved" : "rejected")">@u.Status</span></td><td>
+@if(u.Role != "Admin") { <form asp-action="ToggleUser" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@u.Id"/><button class="btn btn-small @(u.Status == "Active" ? "btn-danger" : "btn-primary")">@(u.Status == "Active" ? "Khóa" : "Mở khóa")</button></form> }
+</td></tr> }
+</tbody></table></div>

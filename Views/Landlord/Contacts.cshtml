@@ -1,0 +1,6 @@
+@model IEnumerable<Contact>
+@{ ViewData["Title"] = "Yêu cầu liên hệ"; }
+<h1>Yêu cầu liên hệ từ người thuê</h1><p class="muted">Các yêu cầu được gửi từ trang chi tiết phòng.</p>
+<div class="table-wrap"><table><thead><tr><th>Ngày gửi</th><th>Phòng</th><th>Người liên hệ</th><th>Số điện thoại</th><th>Lời nhắn</th><th></th></tr></thead><tbody>
+@foreach (var c in Model) { <tr><td>@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td><td><a asp-controller="Rooms" asp-action="Details" asp-route-id="@c.RoomId">@c.Room?.Title</a></td><td>@c.SenderName</td><td><a href="tel:@c.SenderPhone">@c.SenderPhone</a></td><td>@c.Message</td><td><a class="btn btn-small btn-outline" asp-action="ContactDetails" asp-route-id="@c.ContactId">Chi tiết</a></td></tr> }
+</tbody></table></div>

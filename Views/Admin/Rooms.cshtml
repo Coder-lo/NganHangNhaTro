@@ -1,0 +1,12 @@
+@model IEnumerable<Room>
+@{ ViewData["Title"] = "Kiểm duyệt tin đăng"; }
+<div class="section-heading"><h1>Kiểm duyệt tin đăng</h1><form method="get"><select name="status" onchange="this.form.submit()"><option value="">Tất cả trạng thái</option>
+<option value="Pending" selected="@(ViewBag.Status as string == "Pending")">Chờ duyệt</option><option value="Approved" selected="@(ViewBag.Status as string == "Approved")">Đã duyệt</option><option value="Rejected" selected="@(ViewBag.Status as string == "Rejected")">Từ chối</option><option value="Rented" selected="@(ViewBag.Status as string == "Rented")">Đã thuê</option></select></form></div>
+<div class="table-wrap"><table><thead><tr><th>Tin đăng</th><th>Chủ trọ</th><th>Giá</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+@foreach (var r in Model) { <tr><td><b>@r.Title</b><div class="muted">@r.Address · @r.Area m²</div><div>@r.Description</div>@if(!string.IsNullOrEmpty(r.ImageUrl)){<a href="@r.ImageUrl" target="_blank">Xem ảnh</a>}</td><td>@r.Landlord?.FullName<br/><small>@r.Landlord?.Email</small></td><td>@r.Price.ToString("N0") đ</td><td><span class="status @r.Status.ToLowerInvariant()">@(r.Status == "Pending" ? "Chờ duyệt" : r.Status == "Approved" ? "Đã duyệt" : r.Status == "Rejected" ? "Bị từ chối" : "Đã cho thuê")</span><div class="muted">@r.RejectionReason</div></td><td class="actions">
+@if(r.Status == "Pending") {
+<form asp-action="Approve" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@r.RoomId"/><button class="btn btn-small btn-primary">Duyệt</button></form>
+<form asp-action="Reject" method="post" class="reject-form">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@r.RoomId"/><input name="reason" required maxlength="500" placeholder="Lý do từ chối"/><button class="btn btn-small btn-danger">Từ chối</button></form>
+}
+</td></tr> }
+</tbody></table></div>

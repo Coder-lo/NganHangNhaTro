@@ -1,0 +1,17 @@
+# Các thư mục sinh ra khi chạy/build dự án
+bin/
+obj/
+*.exe
+*.dll
+
+# Thư mục cấu hình ẩn của Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Nếu dự án có dùng NodeJS / Front-end packages
+node_modules/
+
+# File nhật ký hệ thống
+*.log

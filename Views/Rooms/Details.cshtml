@@ -1,0 +1,52 @@
+@model Room
+@{ ViewData["Title"] = Model.Title; }
+<div class="breadcrumb"><a asp-action="Index">Tìm phòng</a> / Chi tiết phòng</div>
+<div class="detail-layout">
+    <section class="detail-main">
+        @if (Model.Images.Any() || !string.IsNullOrWhiteSpace(Model.ImageUrl)) { <div class="detail-gallery">@if (!string.IsNullOrWhiteSpace(Model.ImageUrl)) { <img class="detail-image" src="@Model.ImageUrl" alt="@Model.Title" loading="lazy" /> } @foreach (var image in Model.Images.OrderBy(i => i.DisplayOrder)) { <img class="detail-image" src="@image.ImageUrl" alt="@Model.Title" loading="lazy" /> }</div> }
+        else { <div class="detail-placeholder">🏠</div> }
+        <span class="category-tag">@(Model.RoomTypeCategory?.CategoryName ?? Model.Category?.CategoryName)</span>
+        @if (Model.LocationCategory != null) { <span class="muted">📍 @Model.LocationCategory.CategoryName</span> }
+        <h1>@Model.Title</h1>
+        <div class="price big">@Model.Price.ToString("N0") đ <small>/ tháng</small></div>
+        <div class="detail-facts"><span>📐 Diện tích: <b>@Model.Area m²</b></span><span>📍 Địa chỉ: <b>@Model.Address</b></span></div>
+        <div class="detail-facts cost-facts"><span>⚡ Điện: <b>@Model.ElectricityPrice.ToString("N0") đ/kWh</b></span><span>💧 Nước: <b>@Model.WaterPrice.ToString("N0") đ/m³</b></span><span>🧾 Phí dịch vụ: <b>@Model.ServiceFee.ToString("N0") đ/tháng</b></span></div>
+        <h2>Tiện ích</h2><p>@(string.IsNullOrWhiteSpace(Model.Amenities) ? "Chủ trọ chưa cập nhật tiện ích." : Model.Amenities)</p>
+        <h2>Mô tả phòng trọ</h2>
+        <p class="description">@(!string.IsNullOrWhiteSpace(Model.Description) ? Model.Description : "Chủ trọ chưa cung cấp mô tả.")</p>
+        <p class="muted">Đăng ngày @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+    </section>
+    <aside class="contact-card">
+        <h2>Thông tin chủ trọ</h2><div class="landlord-avatar">@(Model.Landlord?.FullName.FirstOrDefault())</div>
+        <h3>@Model.Landlord?.FullName</h3><p class="muted">Chủ nhà trọ</p>
+        @if (User.IsInRole("Tenant")) {
+            <button id="favoriteBtn" class="btn btn-outline full" data-room-id="@Model.RoomId" data-favorite="@((bool)ViewBag.IsFavorite ? "true" : "false")">@((bool)ViewBag.IsFavorite ? "♥ Đã yêu thích" : "♡ Thêm yêu thích")</button>
+        } else if (User.Identity?.IsAuthenticated != true) {
+            <a class="btn btn-outline full" asp-controller="Account" asp-action="Login">Đăng nhập để lưu yêu thích</a>
+        }
+        <hr />
+        <h3>Liên hệ xem phòng</h3>
+        <form asp-controller="Contacts" asp-action="Create" method="post" class="form-stack">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="roomId" value="@Model.RoomId" />
+            <label>Họ và tên</label><input name="senderName" required maxlength="150" placeholder="Tên của bạn" />
+            <label>Số điện thoại</label><input name="senderPhone" required maxlength="20" inputmode="tel" placeholder="Số điện thoại liên hệ" />
+            <label>Email</label><input name="senderEmail" type="email" maxlength="256" placeholder="Email liên hệ" />
+            <label>Lời nhắn</label><textarea name="message" maxlength="500" rows="3" placeholder="Tôi muốn hỏi thêm về phòng..."></textarea>
+            <button class="btn btn-primary full" type="submit">Gửi yêu cầu liên hệ</button>
+        </form>
+    </aside>
+</div>
+@section Scripts {
+<script>
+const fav = document.getElementById('favoriteBtn');
+if (fav) fav.addEventListener('click', async () => {
+ const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+ const body = new URLSearchParams({ roomId: fav.dataset.roomId, __RequestVerificationToken: token || '' });
+ const response = await fetch('@Url.Action("ToggleFavorite", "Rooms")', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body });
+ if (response.status === 401) { location.href='@Url.Action("Login","Account")'; return; }
+ if (!response.ok) { alert('Không thể cập nhật yêu thích.'); return; }
+ const data = await response.json(); fav.dataset.favorite = data.isFavorite; fav.textContent = data.isFavorite ? '♥ Đã yêu thích' : '♡ Thêm yêu thích';
+});
+</script>
+}
