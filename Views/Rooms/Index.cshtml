@@ -1,8 +1,7 @@
 @model IEnumerable<Room>
 @{
     ViewData["Title"] = "Tìm phòng trọ";
-    var locations = ViewBag.LocationCategories as List<Category> ?? new();
-    var roomTypes = ViewBag.RoomTypeCategories as List<Category> ?? new();
+    var categories = ViewBag.Categories as List<Category> ?? new();
 }
 <section class="hero">
     <span class="eyebrow">TÌM CHỖ Ở DỄ DÀNG</span>
@@ -10,19 +9,13 @@
     <p>Khám phá các tin đăng đã được kiểm duyệt, liên hệ trực tiếp với chủ trọ.</p>
     <form id="searchForm" class="search-panel" method="get" asp-controller="Rooms" asp-action="Index">
         <input name="q" value="@ViewBag.Query" placeholder="Nhập tên phòng, khu vực, địa chỉ..." aria-label="Từ khóa" />
-        <select name="locationCategoryId" aria-label="Khu vực">
-            <option value="">Tất cả khu vực</option>
-            @foreach (var c in locations) { <option value="@c.CategoryId" selected="@(ViewBag.LocationCategoryId != null && (int)ViewBag.LocationCategoryId == c.CategoryId)">@c.CategoryName</option> }
-        </select>
-        <select name="roomTypeCategoryId" aria-label="Loại phòng">
-            <option value="">Tất cả loại phòng</option>
-            @foreach (var c in roomTypes) { <option value="@c.CategoryId" selected="@(ViewBag.RoomTypeCategoryId != null && (int)ViewBag.RoomTypeCategoryId == c.CategoryId)">@c.CategoryName</option> }
+        <select name="categoryId" aria-label="Danh mục">
+            <option value="">Tất cả danh mục</option>
+            @foreach (var c in categories) { <option value="@c.CategoryId" selected="@(ViewBag.CategoryId != null && (int)ViewBag.CategoryId == c.CategoryId)">@c.CategoryName (@(c.Type == "Location" ? "Khu vực" : "Loại phòng"))</option> }
         </select>
         <input name="minPrice" type="number" min="0" value="@ViewBag.MinPrice" placeholder="Giá từ" aria-label="Giá từ" />
         <input name="maxPrice" type="number" min="0" value="@ViewBag.MaxPrice" placeholder="Giá đến" aria-label="Giá đến" />
         <input name="minArea" type="number" min="0" step="0.1" value="@ViewBag.MinArea" placeholder="Diện tích từ" aria-label="Diện tích từ" />
-        <input name="maxArea" type="number" min="0" step="0.1" value="@ViewBag.MaxArea" placeholder="Diện tích đến" aria-label="Diện tích đến" />
-        <select name="amenity" aria-label="Tiện ích"><option value="">Mọi tiện ích</option>@foreach (var a in new[] { "Điều hòa", "Nóng lạnh", "Ban công", "Chỗ để xe", "Khép kín", "Máy giặt", "Wifi" }) { <option value="@a" selected="@(ViewBag.Amenity as string == a)">@a</option> }</select>
         <select name="sort" aria-label="Sắp xếp">
             <option value="">Mới nhất</option><option value="price_asc" selected="@(ViewBag.Sort as string == "price_asc")">Giá tăng dần</option>
             <option value="price_desc" selected="@(ViewBag.Sort as string == "price_desc")">Giá giảm dần</option>

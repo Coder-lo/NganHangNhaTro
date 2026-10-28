@@ -15,10 +15,10 @@ public class FavoritesController : Controller
     {
         var uid = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var rooms = await _db.Favorites.Where(f => f.TenantId == uid)
-            .Include(f => f.Room!).ThenInclude(r => r.Category)
             .Include(f => f.Room!).ThenInclude(r => r.LocationCategory)
             .Include(f => f.Room!).ThenInclude(r => r.RoomTypeCategory)
-            .Select(f => f.Room!).Where(r => r.Status == "Approved").ToListAsync();
+            .Include(f => f.Room!).ThenInclude(r => r.Landlord)
+            .Select(f => f.Room!).Where(r => r.ModerationStatus == "Approved" && r.RentalStatus == "Available").ToListAsync();
         return View(rooms);
     }
 }
