@@ -4,9 +4,9 @@
 -- 2. Đa ảnh (RoomImages), Lượt xem (RoomViews) & Chi phí chi tiết 
 -- ============================================================================
 
-IF DB_ID(N'NhaTroDB') IS NULL
+IF DB_ID(N'NhaTroDb') IS NULL
 BEGIN
-    EXEC(N'CREATE DATABASE NhaTroDB');
+    EXEC(N'CREATE DATABASE NhaTroDb');
 END
 GO
 
