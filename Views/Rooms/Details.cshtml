@@ -3,18 +3,25 @@
 <div class="breadcrumb"><a asp-action="Index">Tìm phòng</a> / Chi tiết phòng</div>
 <div class="detail-layout">
     <section class="detail-main">
-        @if (Model.Images.Any() || !string.IsNullOrWhiteSpace(Model.ImageUrl)) { <div class="detail-gallery">@if (!string.IsNullOrWhiteSpace(Model.ImageUrl)) { <img class="detail-image" src="@Model.ImageUrl" alt="@Model.Title" loading="lazy" /> } @foreach (var image in Model.Images.OrderBy(i => i.DisplayOrder)) { <img class="detail-image" src="@image.ImageUrl" alt="@Model.Title" loading="lazy" /> }</div> }
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl)) { <img class="detail-image" src="@Model.ImageUrl" alt="@Model.Title" /> }
         else { <div class="detail-placeholder">🏠</div> }
-        <span class="category-tag">@(Model.RoomTypeCategory?.CategoryName ?? Model.Category?.CategoryName)</span>
-        @if (Model.LocationCategory != null) { <span class="muted">📍 @Model.LocationCategory.CategoryName</span> }
+        @if (Model.Images != null && Model.Images.Any()) {
+            <div class="room-gallery">
+            @foreach (var image in Model.Images.OrderBy(i => i.DisplayOrder)) {
+                <a href="@image.ImageUrl" target="_blank" rel="noopener"><img src="@image.ImageUrl" alt="Ảnh khác của @Model.Title" loading="lazy" /></a>
+            }
+            </div>
+        }
+        <span class="category-tag">@Model.RoomTypeCategory?.CategoryName · @Model.LocationCategory?.CategoryName</span>
         <h1>@Model.Title</h1>
         <div class="price big">@Model.Price.ToString("N0") đ <small>/ tháng</small></div>
         <div class="detail-facts"><span>📐 Diện tích: <b>@Model.Area m²</b></span><span>📍 Địa chỉ: <b>@Model.Address</b></span></div>
-        <div class="detail-facts cost-facts"><span>⚡ Điện: <b>@Model.ElectricityPrice.ToString("N0") đ/kWh</b></span><span>💧 Nước: <b>@Model.WaterPrice.ToString("N0") đ/m³</b></span><span>🧾 Phí dịch vụ: <b>@Model.ServiceFee.ToString("N0") đ/tháng</b></span></div>
-        <h2>Tiện ích</h2><p>@(string.IsNullOrWhiteSpace(Model.Amenities) ? "Chủ trọ chưa cập nhật tiện ích." : Model.Amenities)</p>
         <h2>Mô tả phòng trọ</h2>
         <p class="description">@(!string.IsNullOrWhiteSpace(Model.Description) ? Model.Description : "Chủ trọ chưa cung cấp mô tả.")</p>
         <p class="muted">Đăng ngày @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+        <h3>Chi phí dịch vụ</h3>
+        <div class="detail-facts"><span>⚡ Điện: <b>@Model.ElectricityPrice.ToString("N0") đ/kWh</b></span><span>💧 Nước: <b>@Model.WaterPrice.ToString("N0") đ</b></span><span>🧾 Phí dịch vụ: <b>@Model.ServiceFee.ToString("N0") đ/tháng</b></span></div>
+        @if (!string.IsNullOrWhiteSpace(Model.Amenities)) { <h3>Tiện ích</h3><p>@Model.Amenities</p> }
     </section>
     <aside class="contact-card">
         <h2>Thông tin chủ trọ</h2><div class="landlord-avatar">@(Model.Landlord?.FullName.FirstOrDefault())</div>
@@ -31,7 +38,6 @@
             <input type="hidden" name="roomId" value="@Model.RoomId" />
             <label>Họ và tên</label><input name="senderName" required maxlength="150" placeholder="Tên của bạn" />
             <label>Số điện thoại</label><input name="senderPhone" required maxlength="20" inputmode="tel" placeholder="Số điện thoại liên hệ" />
-            <label>Email</label><input name="senderEmail" type="email" maxlength="256" placeholder="Email liên hệ" />
             <label>Lời nhắn</label><textarea name="message" maxlength="500" rows="3" placeholder="Tôi muốn hỏi thêm về phòng..."></textarea>
             <button class="btn btn-primary full" type="submit">Gửi yêu cầu liên hệ</button>
         </form>

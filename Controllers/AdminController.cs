@@ -17,9 +17,9 @@ public class AdminController : Controller
         ViewBag.Users = await _db.Users.CountAsync();
         ViewBag.Tenants = await _db.Users.CountAsync(u => u.Role == "Tenant");
         ViewBag.Landlords = await _db.Users.CountAsync(u => u.Role == "Landlord");
-        ViewBag.Pending = await _db.Rooms.CountAsync(r => r.Status == "Pending");
-        ViewBag.Approved = await _db.Rooms.CountAsync(r => r.Status == "Approved");
-        ViewBag.Rented = await _db.Rooms.CountAsync(r => r.Status == "Rented");
+        ViewBag.Pending = await _db.Rooms.CountAsync(r => r.ModerationStatus == "Pending");
+        ViewBag.Approved = await _db.Rooms.CountAsync(r => r.ModerationStatus == "Approved");
+        ViewBag.Rented = await _db.Rooms.CountAsync(r => r.ModerationStatus == "Approved" && r.RentalStatus == "Rented");
         ViewBag.Contacts = await _db.Contacts.CountAsync();
         ViewBag.Views7Days = await _db.RoomViews.CountAsync(v => v.ViewedAt >= DateTime.Now.AddDays(-7));
         return View();
@@ -27,8 +27,13 @@ public class AdminController : Controller
 
     public async Task<IActionResult> Rooms(string? status)
     {
-        var q = _db.Rooms.Include(r => r.Category).Include(r => r.LocationCategory).Include(r => r.RoomTypeCategory).Include(r => r.Landlord).Include(r => r.Images).AsQueryable();
-        if (!string.IsNullOrEmpty(status)) q = q.Where(r => r.Status == status);
+        var q = _db.Rooms
+            .Include(r => r.LocationCategory)
+            .Include(r => r.RoomTypeCategory)
+            .Include(r => r.Landlord)
+            .AsQueryable();
+        if (!string.IsNullOrEmpty(status))
+            q = q.Where(r => r.ModerationStatus == status);
         ViewBag.Status = status;
         return View(await q.OrderByDescending(r => r.CreatedAt).ToListAsync());
     }
@@ -40,7 +45,9 @@ public class AdminController : Controller
         if (room == null) return NotFound();
         var hasImage = !string.IsNullOrWhiteSpace(room.ImageUrl) || await _db.RoomImages.AnyAsync(i => i.RoomId == id);
         if (!hasImage) { TempData["Error"] = "Không thể duyệt tin chưa có ảnh phòng."; return RedirectToAction(nameof(Rooms), new { status = "Pending" }); }
-        room.Status = "Approved"; room.RejectionReason = null;
+        room.ModerationStatus = "Approved";
+        room.RejectionReason = null;
+        room.UpdatedAt = DateTime.Now;
         await _db.SaveChangesAsync();
         TempData["Success"] = "Đã duyệt tin đăng.";
         return RedirectToAction(nameof(Rooms));
@@ -56,7 +63,9 @@ public class AdminController : Controller
             TempData["Error"] = "Vui lòng nhập lý do từ chối (tối đa 500 ký tự).";
             return RedirectToAction(nameof(Rooms), new { status = "Pending" });
         }
-        room.Status = "Rejected"; room.RejectionReason = reason.Trim();
+        room.ModerationStatus = "Rejected";
+        room.RejectionReason = reason.Trim();
+        room.UpdatedAt = DateTime.Now;
         await _db.SaveChangesAsync();
         TempData["Success"] = "Đã từ chối tin đăng.";
         return RedirectToAction(nameof(Rooms));
@@ -99,8 +108,19 @@ public class AdminController : Controller
     {
         var cat = await _db.Categories.FindAsync(id);
         if (cat == null) return NotFound();
-        if (await _db.Rooms.AnyAsync(r => r.CategoryId == id || r.LocationCategoryId == id || r.RoomTypeCategoryId == id)) TempData["Error"] = "Không thể xóa danh mục đang được phòng trọ sử dụng.";
-        else { _db.Categories.Remove(cat); await _db.SaveChangesAsync(); TempData["Success"] = "Đã xóa danh mục."; }
+        if (await _db.Rooms.AnyAsync(r =>
+            r.LocationCategoryId == id ||
+            r.RoomTypeCategoryId == id))
+        {
+            TempData["Error"] =
+                "Không thể xóa danh mục đang được phòng trọ sử dụng.";
+        }
+        else
+        {
+            _db.Categories.Remove(cat);
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã xóa danh mục.";
+        }
         return RedirectToAction(nameof(Categories));
     }
 }

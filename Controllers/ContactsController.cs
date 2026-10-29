@@ -15,7 +15,10 @@ public class ContactsController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(int roomId, string senderName, string senderPhone, string? senderEmail, string? message)
     {
-        var room = await _db.Rooms.FirstOrDefaultAsync(r => r.RoomId == roomId && r.Status == "Approved");
+        var room = await _db.Rooms.FirstOrDefaultAsync(r =>
+            r.RoomId == roomId &&
+            r.ModerationStatus == "Approved" &&
+            r.RentalStatus == "Available");
         if (room == null) return NotFound();
         if (string.IsNullOrWhiteSpace(senderName) || string.IsNullOrWhiteSpace(senderPhone))
         {
@@ -29,7 +32,10 @@ public class ContactsController : Controller
         }
         if (!string.IsNullOrWhiteSpace(senderEmail) && (senderEmail.Length > 256 || !senderEmail.Contains('@'))) { TempData["Error"] = "Email không hợp lệ."; return RedirectToAction("Details", "Rooms", new { id = roomId }); }
         var senderUserId = User.Identity?.IsAuthenticated == true ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
-        _db.Contacts.Add(new Contact { RoomId = roomId, SenderName = senderName.Trim(), SenderPhone = senderPhone.Trim(), SenderEmail = senderEmail?.Trim(), SenderUserId = senderUserId, Message = message?.Trim(), CreatedAt = DateTime.Now });
+        _db.Contacts.Add(new Contact { RoomId = roomId, SenderName = senderName.Trim(), SenderPhone = senderPhone.Trim(),
+            SenderEmail = User.Identity?.IsAuthenticated == true ? User.FindFirstValue(ClaimTypes.Email) : null,
+            SenderUserId = User.Identity?.IsAuthenticated == true ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null,
+            Message = message?.Trim(), CreatedAt = DateTime.Now });
         await _db.SaveChangesAsync();
         TempData["Success"] = "Đã gửi thông tin liên hệ đến chủ trọ.";
         return RedirectToAction("Details", "Rooms", new { id = roomId });

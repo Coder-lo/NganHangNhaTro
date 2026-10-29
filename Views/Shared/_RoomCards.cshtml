@@ -6,12 +6,10 @@ else {
     <article class="room-card">
         <a class="room-image" asp-controller="Rooms" asp-action="Details" asp-route-id="@room.RoomId">
             @if (!string.IsNullOrWhiteSpace(room.ImageUrl)) { <img src="@room.ImageUrl" alt="@room.Title" loading="lazy" /> }
-            else if (room.Images.FirstOrDefault() is { } firstImage) { <img src="@firstImage.ImageUrl" alt="@room.Title" loading="lazy" /> }
             else { <div class="image-placeholder">🏠</div> }
         </a>
         <div class="room-card-body">
-            <span class="category-tag">@(room.RoomTypeCategory?.CategoryName ?? room.Category?.CategoryName)</span>
-            @if (room.LocationCategory != null) { <span class="muted">📍 @room.LocationCategory.CategoryName</span> }
+            <span class="category-tag">@room.RoomTypeCategory?.CategoryName · @room.LocationCategory?.CategoryName</span>
             <h3><a asp-controller="Rooms" asp-action="Details" asp-route-id="@room.RoomId">@room.Title</a></h3>
             <div class="price">@room.Price.ToString("N0") đ <small>/ tháng</small></div>
             <p class="muted">📍 @room.Address</p>
