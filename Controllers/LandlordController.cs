@@ -16,6 +16,34 @@ public class LandlordController : Controller
     public LandlordController(AppDbContext db, IWebHostEnvironment env) { _db = db; _env = env; }
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
+    public async Task<IActionResult> Dashboard()
+    {
+        var rooms = _db.Rooms
+            .Where(r => r.LandlordId == UserId);
+
+        ViewBag.Total = await rooms.CountAsync();
+
+        ViewBag.Pending = await rooms
+            .CountAsync(r => r.ModerationStatus == "Pending");
+
+        ViewBag.Approved = await rooms
+            .CountAsync(r => r.ModerationStatus == "Approved");
+
+        ViewBag.Rented = await rooms
+            .CountAsync(r => r.RentalStatus == "Rented");
+
+        ViewBag.Contacts = await _db.Contacts
+            .CountAsync(c => c.Room != null &&
+                            c.Room.LandlordId == UserId);
+
+        ViewBag.RecentRooms = await rooms
+            .OrderByDescending(r => r.CreatedAt)
+            .Take(5)
+            .ToListAsync();
+
+        return View();
+    }
+
     public async Task<IActionResult> Mine()
     {
         var rooms = await _db.Rooms.Include(r => r.LocationCategory).Include(r => r.RoomTypeCategory)
